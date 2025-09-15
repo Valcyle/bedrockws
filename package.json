@@ -1,0 +1,32 @@
+{
+  "name": "bedrockws",
+  "version": "0.1.0",
+  "description": "A JavaScript/TypeScript library for Minecraft Bedrock Edition WebSocket API",
+  "main": "src/index.js",
+  "types": "index.d.ts",
+  "type": "module",
+  "keywords": [
+    "minecraft",
+    "bedrock",
+    "websocket",
+    "api"
+  ],
+  "author": "Valcyle",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourname/bedrockws.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourname/bedrockws/issues"
+  },
+  "homepage": "https://github.com/yourname/bedrockws#readme",
+  "devDependencies": {
+    "eslint": "^9.35.0",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "ws": "^8.18.3"
+  }
+}

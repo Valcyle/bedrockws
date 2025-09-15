@@ -18,6 +18,24 @@ export function createServer(port = 3000, additionalEvents = []) {
     return ws;
   }
 
+// server.on() to auto subscribe events
+  const originalOn = server.on.bind(server);
+
+server.on = (eventName, listener) => {
+  if (Events.EVENTS.includes(eventName)) {
+    // Save which events are subscribed
+    server.subscribedEvents = server.subscribedEvents || new Set();
+    server.subscribedEvents.add(eventName);
+
+    // Subscribe already-connected clients
+    wss.clients.forEach((socket) => {
+      Events.subscribeEvent(socket, eventName);
+    });
+  }
+
+  return originalOn(eventName, listener);
+};
+
   wss.on("connection", (socket) => {
     console.log("Client connected");
 
@@ -26,13 +44,19 @@ export function createServer(port = 3000, additionalEvents = []) {
       Events.subscribeEvent(socket, eventName);
     }
 
+    if (server.subscribedEvents) {
+      server.subscribedEvents.forEach((eventName) => {
+        Events.subscribeEvent(socket, eventName);
+      });
+    }
+
     const client = wrapClient(socket);
     server.emit("ServerConnection", { message: "client connected" }, client);
 
     socket.on("message", (msg) => {
       let data;
       try { data = JSON.parse(msg); } catch { return; }
-      // console.log(data.header.eventName);
+      console.log(data.header.eventName);
       if (data.header?.eventName) {
         server.emit(data.header.eventName, data, socket);
       }else{
@@ -42,17 +66,6 @@ export function createServer(port = 3000, additionalEvents = []) {
 
     socket.on("close", () => console.log("Client disconnected"));
   });
-
-  // server.on() to auto subscribe events
-  const originalOn = server.on.bind(server);
-  server.on = (eventName, listener) => {
-    wss.clients.forEach((socket) => {
-      if (Events.EVENTS.includes(eventName)) {
-        Events.subscribeEvent(socket, eventName);
-      }
-    });
-    return originalOn(eventName, listener);
-  };
 
   server.sendCommand = (command, socket) => {
     Commands.sendCommand(command, socket);

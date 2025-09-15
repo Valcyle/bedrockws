@@ -22,9 +22,14 @@ setInterval(() => {
   console.log(`Connected clients: ${server.wss.clients.size}`);
 }, 5000);
 
-// server.on("BlockPlaced", (data, ws) => {
-//   console.log("[BlockPlaced] Data received:", data);
-// });
+server.on("BlockPlaced", (data, ws) => {
+  console.log("[BlockPlaced] Data received:", data);
+});
+
+server.on("ItemDropped", (data, ws) =>{
+  console.log("item dropped");
+});
+
 
 // サンプル用に 30 秒後にサーバー停止
 setTimeout(() => {

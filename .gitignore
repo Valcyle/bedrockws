@@ -31,3 +31,5 @@ coverage/
 # OS-specific
 *.swp
 *.swo
+
+publish.ps1

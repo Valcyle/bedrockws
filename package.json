@@ -1,6 +1,6 @@
 {
   "name": "bedrockws",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JavaScript/TypeScript library for Minecraft Bedrock Edition WebSocket API",
   "main": "index.js",
   "types": "index.d.ts",
@@ -32,7 +32,7 @@
   ],
   "scripts": {
     "test": "node test/start.js",
-  "lint": "eslint src/**/*.js test/**/*.js"
+    "lint": "eslint src/**/*.js test/**/*.js"
   },
   "devDependencies": {
     "eslint": "^9.35.0",

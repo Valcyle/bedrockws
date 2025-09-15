@@ -1,15 +1,192 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer, WebSocket } from "ws";
+import EventEmitter from "eventemitter3";
 
-/**
- * Starts a WebSocket server for Minecraft Bedrock Edition clients.
- * @param port The port number to listen on
- * @returns The WebSocket server instance
- */
-export function startServer(port?: number): WebSocketServer;
+/** events name list */
+export type EventName =
+  | "AgentCommand"
+  | "AgentCreated"
+  | "AndroidHelpRequest"
+  | "ApiInit"
+  | "AppPaused"
+  | "AppResumed"
+  | "AppSuspended"
+  | "AppUnpaused"
+  | "ArmorStandItemEquipped"
+  | "ArmorStandPosed"
+  | "AssertFailed"
+  | "AvatarsListed"
+  | "AvatarUpdated"
+  | "BehaviorErrored"
+  | "BehaviorFailed"
+  | "BlockBroken"
+  | "BlockFound"
+  | "BlockPlaced"
+  | "BlockUsageAttempt"
+  | "BlockUsed"
+  | "BookCopied"
+  | "BookEdited"
+  | "BookExported"
+  | "BookImageImported"
+  | "BossKilled"
+  | "BundleSubOfferClicked"
+  | "ButtonPressed"
+  | "CameraUsed"
+  | "CaravanChanged"
+  | "CauldronUsed"
+  | "ChunkChanged"
+  | "ChunkLoaded"
+  | "ClassroomSettingUpdated"
+  | "ClientIdCreated"
+  | "ClubsEngagement"
+  | "CommandBlockEdited"
+  | "ConfigurationChanged"
+  | "ConnectionFailed"
+  | "ContentShared"
+  | "ControlRemappedByPlayer"
+  | "CraftingSessionCompleted"
+  | "CrashDumpStatus"
+  | "CustomContentRegistered"
+  | "DBStorageError"
+  | "DevConsoleOpen"
+  | "DeviceAccountFailure"
+  | "DeviceAccountSuccess"
+  | "DeviceIdManagerFailOnIdentityGained"
+  | "DeviceLost"
+  | "DifficultySet"
+  | "DiskStatus"
+  | "DwellerDied"
+  | "DwellerRemoved"
+  | "EDUDemoConversion"
+  | "EduOptionSet"
+  | "EmotePlayed"
+  | "GameRulesUpdated"
+  | "GameSessionStart"
+  | "GameTipShown"
+  | "HardwareInfo"
+  | "HowToPlayTopicChanged"
+  | "IDESelected"
+  | "IncognitoFailure"
+  | "InputModeChanged"
+  | "ItemAcquired"
+  | "ItemCrafted"
+  | "ItemDropped"
+  | "ItemEquipped"
+  | "ItemInteracted"
+  | "ItemNamed"
+  | "ItemSmelted"
+  | "ItemTraded"
+  | "JoinCanceled"
+  | "JukeboxUsed"
+  | "LockedItemGiven"
+  | "MobEffectChanged"
+  | "MobInteracted"
+  | "NpcInteracted"
+  | "OfferRated"
+  | "OnAppResume"
+  | "OnAppStart"
+  | "OnAppSuspend"
+  | "OnDeviceLost"
+  | "OptionsUpdated"
+  | "PackHashChanged"
+  | "PackPlayed"
+  | "PackRecovery"
+  | "PackSettings"
+  | "PatternAdded"
+  | "PerformanceContext"
+  | "PerformanceMetrics"
+  | "PermissionsSet"
+  | "PetDied"
+  | "PlayerBanned"
+  | "PlayerBounced"
+  | "PlayerGameModeSet"
+  | "PlayerMessage"
+  | "PlayerSaved"
+  | "PlayerTeleported"
+  | "PlayerTransform"
+  | "PlayerTravelled"
+  | "PopupClosed"
+  | "PopupFiredEdu"
+  | "PortalUsed"
+  | "PortfolioExported"
+  | "PotionBrewed"
+  | "Progressions"
+  | "PurchaseFailedDetailed"
+  | "PushNotificationPermission"
+  | "PushNotificationReceived"
+  | "QueryOfferResult"
+  | "RaidUpdated"
+  | "RealmShared"
+  | "RealmsSubscriptionPurchaseFailed"
+  | "RealmsSubscriptionPurchaseStarted"
+  | "RealmsSubscriptionPurchaseSucceeded"
+  | "RenderingSizeChanged"
+  | "RespondedToAcceptContent"
+  | "ScreenChanged"
+  | "ScreenLoaded"
+  | "ScreenLoadTime"
+  | "ScriptRan"
+  | "ServerConnection"
+  | "ServerConnectionAttempt"
+  | "ServerDrivenLayoutImageLoad"
+  | "ServerDrivenLayoutPageLoad"
+  | "SessionCrashed"
+  | "SignedBookOpened"
+  | "SignIn"
+  | "SignInToEdu"
+  | "SignOut"
+  | "SignOutOfXboxLive"
+  | "SlashCommandExecuted"
+  | "StartClient"
+  | "StartWorld"
+  | "StorageCreated"
+  | "storageReport"
+  | "StoreDiscoveryServiceResponse"
+  | "StoreOfferClicked"
+  | "StorePlayFabResponse"
+  | "StorePromoNotification"
+  | "StorePromoNotificationClicked"
+  | "StoreSearch"
+  | "StoreSessionStartResponse"
+  | "StructureBlockAction"
+  | "TargetBlockHit"
+  | "TextToSpeechToggled"
+  | "TreatmentPackApplied"
+  | "TreatmentPackRemoved"
+  | "Treatments"
+  | "TrialDeviceIdCorrelation"
+  | "UgcDownloadCompleted"
+  | "WaxedOnOrOff"
+  | "WorldGenerated"
+  | "WorldLoadedClassroomCustomization"
+  | "WorldLoadTimes"
+  | "XForgeCatalogSearch";
 
-/**
- * Formats a message for Bedrock clients.
- * @param msg The message to format
- * @returns Formatted message
- */
-export function formatMessage(msg: string): string;
+/** server option */
+export interface ServerOptions {
+  autoReconnect?: boolean;
+}
+
+/** Bedrock client */
+export interface BedrockClient extends WebSocket {
+  bedrock: {
+    Events: Record<string, unknown>;
+    Commands: Record<string, unknown>;
+  };
+}
+
+/** Bedrock server */
+export interface BedrockServer extends EventEmitter<EventName, [any, BedrockClient]> {
+  wss: WebSocketServer;
+  sendCommand(command: string, ws: BedrockClient): void;
+  on(event: EventName, listener: (...args: any[], ws: BedrockClient) => void): this;
+}
+
+/** BedrockWS library entry point */
+export interface BedrockWS {
+  createServer(port?: number, additionalEvents?: EventName[]): BedrockServer;
+  Events: Record<string, unknown>;
+  Commands: Record<string, unknown>;
+}
+
+declare const bedrockws: BedrockWS;
+export default bedrockws;

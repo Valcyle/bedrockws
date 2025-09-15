@@ -2,13 +2,16 @@
   "name": "bedrockws",
   "version": "0.1.0",
   "description": "A JavaScript/TypeScript library for Minecraft Bedrock Edition WebSocket API",
-  "main": "src/index.js",
+  "main": "index.js",
   "types": "index.d.ts",
   "type": "module",
   "keywords": [
     "minecraft",
     "bedrock",
     "websocket",
+    "server",
+    "eventemitter",
+    "bedrockws",
     "api"
   ],
   "author": "Valcyle",
@@ -28,7 +31,8 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node test/start.js"
+    "test": "node test/start.js",
+  "lint": "eslint src/**/*.js test/**/*.js"
   },
   "devDependencies": {
     "eslint": "^9.35.0",

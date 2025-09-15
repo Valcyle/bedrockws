@@ -1,4 +1,33 @@
-node_modules
-dist
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Env files
 .env
-publish.ps1
+.env.local
+
+# Logs
+logs
+*.log
+
+# Coverage / testing
+coverage/
+.jest/
+
+# Editor settings
+.vscode/
+.idea/
+
+# OS-specific
+*.swp
+*.swo

@@ -15,12 +15,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourname/bedrockws.git"
+    "url": "git+https://github.com/Valcyle/bedrockws.git"
   },
   "bugs": {
-    "url": "https://github.com/yourname/bedrockws/issues"
+    "url": "https://github.com/Valcyle/bedrockws/issues"
   },
-  "homepage": "https://github.com/yourname/bedrockws#readme",
+  "homepage": "https://github.com/Valcyle/bedrockws#readme",
+  "files": [
+    "src/",
+    "index.d.ts",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/start.js"
+  },
   "devDependencies": {
     "eslint": "^9.35.0",
     "typescript": "^5.9.2"

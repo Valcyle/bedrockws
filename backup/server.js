@@ -1,32 +1,76 @@
-import WebSocket, { WebSocketServer } from 'ws';
-import { formatMessage } from './messages.js';
+import { WebSocketServer } from "ws";
+import EventEmitter from "eventemitter3";
+import * as Events from "./events.js";
+import * as Commands from "./commands.js";
 
-/**
- * Starts a WebSocket server for Minecraft Bedrock Edition clients.
- * @param {number} port - The port number to listen on (default: 3000)
- * @returns {WebSocketServer} The WebSocket server instance
- */
-export function startServer(port = 3000) {
+const DEFAULT_EVENTS = ["PlayerTravelled", "PlayerMessage", "BlockPlaced", "BlockBroken", "PlayerJoined", "PlayerLeft"];
+
+export function createServer(port = 3000, additionalEvents = []) {
+  const server = new EventEmitter();
   const wss = new WebSocketServer({ port });
+  console.log(`WebSocket server listening on port ${port}`);
 
-  wss.on('connection', (ws) => {
-    console.log('Minecraft client connected');
+  // auto subscribe events
+  const autoEvents = [...DEFAULT_EVENTS, ...additionalEvents];
 
-    ws.on('message', (msg) => {
-      console.log('Received message:', msg.toString());
-      const formatted = formatMessage(msg.toString());
-      wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(formatted);
-        }
+  function wrapClient(ws) {
+    ws.bedrock = { Events, Commands };
+    return ws;
+  }
+
+// server.on() to auto subscribe events
+  const originalOn = server.on.bind(server);
+
+server.on = (eventName, listener) => {
+  if (Events.EVENTS.includes(eventName)) {
+    // Save which events are subscribed
+    server.subscribedEvents = server.subscribedEvents || new Set();
+    server.subscribedEvents.add(eventName);
+
+    // Subscribe already-connected clients
+    wss.clients.forEach((socket) => {
+      Events.subscribeEvent(socket, eventName);
+    });
+  }
+
+  return originalOn(eventName, listener);
+};
+
+  wss.on("connection", (socket) => {
+    console.log("Client connected");
+
+    // auto subscribe events
+    for (const eventName of autoEvents) {
+      Events.subscribeEvent(socket, eventName);
+    }
+
+    if (server.subscribedEvents) {
+      server.subscribedEvents.forEach((eventName) => {
+        Events.subscribeEvent(socket, eventName);
       });
+    }
+
+    const client = wrapClient(socket);
+    server.emit("ServerConnection", { message: "client connected" }, client);
+
+    socket.on("message", (msg) => {
+      let data;
+      try { data = JSON.parse(msg); } catch { return; }
+      console.log(data.header.eventName);
+      if (data.header?.eventName) {
+        server.emit(data.header.eventName, data, socket);
+      }else{
+        // console.log(data);
+      }
     });
 
-    ws.on('close', () => {
-      console.log('Client disconnected');
-    });
+    socket.on("close", () => console.log("Client disconnected"));
   });
 
-  console.log(`WebSocket server running on ws://localhost:${port}`);
-  return wss;
+  server.sendCommand = (command, socket) => {
+    Commands.sendCommand(command, socket);
+  };
+
+  server.wss = wss;
+  return server;
 }

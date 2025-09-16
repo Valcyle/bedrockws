@@ -8,6 +8,8 @@
 **BedrockWS** is a JavaScript library for creating and handling a Minecraft Bedrock WebSocket server.  
 It simplifies interaction with the Bedrock WebSocket API by automatically subscribing to events when you listen with `server.on`, and provides convenient utilities for sending commands back to the game.
 
+### ⚠️ This library is still in developing and more features coming in future
+
 ---
 
 ## 📑 Table of Contents

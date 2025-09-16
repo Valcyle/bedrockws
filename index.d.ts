@@ -178,7 +178,7 @@ export interface BedrockClient extends WebSocket {
 export interface BedrockServer extends EventEmitter<EventName, [any, BedrockClient]> {
   wss: WebSocketServer;
   sendCommand(command: string, ws: BedrockClient): void;
-  on(event: EventName, listener: (...args: any[], ws: BedrockClient) => void): this;
+  on(event: EventName, listener: (args: any[], ws: BedrockClient) => void): this;
 }
 
 /** BedrockWS library entry point */

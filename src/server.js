@@ -56,7 +56,7 @@ server.on = (eventName, listener) => {
     socket.on("message", (msg) => {
       let data;
       try { data = JSON.parse(msg); } catch { return; }
-      console.log(data.header.eventName);
+      // console.log(data.header.eventName);
       if (data.header?.eventName) {
         server.emit(data.header.eventName, data, socket);
       }else{
